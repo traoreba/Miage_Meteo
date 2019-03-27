@@ -24,7 +24,7 @@ public class LoginActivity extends AppCompatActivity{
         setContentView(R.layout.activity_login);
 
         login_form = (EditText) findViewById(R.id.login_form);
-        password_form = (EditText) findViewById(R.id.password);
+        password_form = (EditText) findViewById(R.id.password_form);
         btn_login = (Button) findViewById(R.id.btn_Login);
         btn_sign_in = (Button) findViewById(R.id.btn_create_account);
 
@@ -44,7 +44,7 @@ public class LoginActivity extends AppCompatActivity{
     }
 
     private void executeBtnLoginClick(){
-        if (!login_form.getText().toString().equals("assane")){
+        /*if (!login_form.getText().toString().equals("assane")){
 
             String sErrorLogin = getResources().getString(R.string.error_bad_login);
             login_form.setError(sErrorLogin);
@@ -56,11 +56,9 @@ public class LoginActivity extends AppCompatActivity{
             String sErrorLogin = getResources().getString(R.string.error_bad_login);
             password_form.setError(sErrorLogin);
             return;
-        }
+        }*/
 
-        //startActivity(new Intent(this, HomePage.class));
-        startActivity(new Intent(this, Metro.class));
-
+        startActivity(new Intent(this, MainActivity.class));
     }
 
     private void executeBtn_Sign_onClick(){
