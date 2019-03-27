@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/menu_home"
+            android:icon="@drawable/ic_launcher_foreground"
+            android:title="@string/home_page_name" />
+
+        <item
+            android:id="@+id/menu_forecast"
+            android:icon="@drawable/ic_launcher_foreground"
+            android:title="@string/meteo_page" />
+
+        <item
+            android:id="@+id/menu_metro"
+            android:icon="@drawable/ic_launcher_foreground"
+            android:title="@string/metro_page" />
+
+    </group>
+
+</menu>

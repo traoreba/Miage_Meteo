@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Miage Météo</string>
+    <string name="welcome_message">Bienvenue sur Miage Météo</string>
+    <string name="title_close">Close</string>
+    <string name="login">Login</string>
+    <string name="password">Mot de passe</string>
+    <string name="login_tag">Se connecter</string>
+    <string name="sign_in_tag">Créer un compte</string>
+    <string name="title_activity_login">Sign in</string>
+    <string name="error_bad_login">Mauvais login</string>
+    <string name="home_page_name">Accueil</string>
+    <string name="meteo_page">Meteo</string>
+    <string name="metro_page">Transport tag</string>
+</resources>
