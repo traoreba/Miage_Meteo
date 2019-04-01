@@ -1,5 +1,6 @@
 package com.example.miagemto;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -16,11 +17,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 public class MainActivity extends AppCompatActivity {
@@ -28,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
     DrawerLayout m_drawer_layout;
     NavigationView m_navigation_view;
     ImageButton button_show_drawer;
+    BottomNavigationView bottomNav;
 
     FragmentManager fragment_manager;
 
@@ -37,29 +35,22 @@ public class MainActivity extends AppCompatActivity {
         d.onPreExecute();
         d.onPostExecute(true);
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_main);
-
         fragment_manager = getSupportFragmentManager();
-
         //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         //getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp);
-
-        BottomNavigationView bottomNav = findViewById(R.id.bottom_nav_menu);
+        bottomNav = findViewById(R.id.bottom_nav_menu);
         bottomNav.setOnNavigationItemSelectedListener(bottomNavListener);
-
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,
-                new MetroFragment()).commit();
+        fragment_manager.beginTransaction().replace(R.id.fragment_container,
+                new HomePageFragment()).commit();
 
         m_drawer_layout = findViewById(R.id.main_drawer_layout);
         m_navigation_view = findViewById(R.id.nav_view);
-
         m_navigation_view.setNavigationItemSelectedListener(
                 new NavigationView.OnNavigationItemSelectedListener() {
                     @Override
                     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                        m_drawer_layout.closeDrawers();
-                        return manageOnSelectedItem(menuItem);
+                        return manageNavDrawerOnSelectedItem(menuItem);
                     }
                 }
         );
@@ -76,25 +67,15 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
-    private void configureNavHeader(String userPseudo){
-        View headerView = m_navigation_view.inflateHeaderView(R.layout.nav_header);
-
-        ImageView userAvaterView = headerView.findViewById(R.id.nav_header_img_userAvatar);
-        TextView userPseudoView = headerView.findViewById(R.id.nav_header_userPseudo);
-
-        userPseudoView.setText(userPseudo);
-    }
-
     private BottomNavigationView.OnNavigationItemSelectedListener bottomNavListener =
             new BottomNavigationView.OnNavigationItemSelectedListener() {
                 @Override
                 public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                    return manageOnSelectedItem(menuItem);
+                    return manageNavBottomOnSelectedItem(menuItem);
                 }
             };
 
-    private boolean manageOnSelectedItem(MenuItem item) {
+    private boolean manageNavBottomOnSelectedItem(MenuItem item) {
         Fragment selectedFragment = null;
 
         switch (item.getItemId()){
@@ -104,20 +85,38 @@ public class MainActivity extends AppCompatActivity {
             case R.id.nav_favorites:
                 selectedFragment = new FavoriteFragment();
                 break;
-            case R.id.nav_info_traffic:
+            case R.id.nav_itinerary:
                 selectedFragment = new InfoTrafficFragment();
                 break;
-            case R.id.nav_account:
+            case R.id.nav_schedule:
                 selectedFragment = new AccountFragment();
                 break;
             default:
                 break;
         }
-
         fragment_manager.beginTransaction().replace(R.id.fragment_container, selectedFragment).commit();
         return true;
     }
 
+    private boolean manageNavDrawerOnSelectedItem(MenuItem item) {
+        m_drawer_layout.closeDrawers();
+        Intent activity_to_launch = null;
+        switch (item.getItemId()){
+            case R.id.nav_account:
+                activity_to_launch = new Intent(this, ProfilActivity.class);
+                break;
+            case R.id.nav_contact_us:
+                activity_to_launch = new Intent(this, ContactUsActivity.class);
+                break;
+            case R.id.nav_parameters:
+                activity_to_launch = new Intent(this, SettingsActivity.class);
+                break;
+            default:
+                break;
+        }
+        startActivity(activity_to_launch);
+        return true;
+    }
 
     private class DownloadFiles extends AsyncTask<String, Boolean, Boolean> {
 
@@ -144,6 +143,15 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+    }
+
+    private void configureNavHeader(String userPseudo){
+        View headerView = m_navigation_view.inflateHeaderView(R.layout.nav_header);
+
+        ImageView userAvaterView = headerView.findViewById(R.id.nav_header_img_userAvatar);
+        TextView userPseudoView = headerView.findViewById(R.id.nav_header_userPseudo);
+
+        userPseudoView.setText(userPseudo);
     }
 
     @Override
