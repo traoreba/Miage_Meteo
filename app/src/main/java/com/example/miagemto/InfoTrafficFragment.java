@@ -12,6 +12,6 @@ public class InfoTrafficFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_info_traffic, container, false);
+        return inflater.inflate(R.layout.fragment_itinerary, container, false);
     }
 }
