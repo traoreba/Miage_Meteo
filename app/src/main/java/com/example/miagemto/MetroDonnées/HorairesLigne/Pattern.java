@@ -1,11 +1,17 @@
 package com.example.miagemto.MetroDonnées.HorairesLigne;
 
+import org.json.JSONObject;
+
 public class Pattern {
 
     private String id;
     private String desc;
     private String dir;
     private String shortDesc;
+
+    public Pattern (JSONObject js) {
+
+    }
 
     public String getId() {
         return id;

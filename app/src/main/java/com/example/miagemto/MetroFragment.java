@@ -1,10 +1,23 @@
 package com.example.miagemto;
 
+import android.Manifest;
+import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,49 +26,28 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.RequestQueue;
+import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.Volley;
-import com.example.miagemto.MetroDonnées.LignesProximite.LignesProximite;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class MetroFragment extends Fragment {
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_metro, container, false);
-    }
+public class MetroFragment extends Fragment implements LocationListener {
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        horairesLignes = getActivity().findViewById(R.id.lineTime);
-        ligneAProximite = getActivity().findViewById(R.id.ligneProximite);
-        txtResponse = getActivity().findViewById(R.id.txtResponse);
+    //TextView ligneProximite, linetime;
+    Button ligneProximite, lineTime;
 
-        pDialog = new ProgressDialog(this.getContext());
-        pDialog.setMessage("Please wait...");
-        pDialog.setCancelable(false);
+    Location location= null;
 
-        ligneAProximite.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                // making json array request
-                callWebservice();
-            }
-        });
-    }
+    public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
+    LocationManager locationManager;
 
     private static String TAG = MetroFragment.class.getSimpleName();
-    private Button horairesLignes, ligneAProximite, DescriptionLigne;
-    private LignesProximite ligneProximo;
+
     // Progress dialog
     private ProgressDialog pDialog;
 
@@ -64,45 +56,143 @@ public class MetroFragment extends Fragment {
     // temporary string to show the parsed response
     private String jsonResponse;
 
-    private void callWebservice () {
-        String sURL = "http://data.metromobilite.fr/api/linesNear/json?x=5.709360123&y=45.176494599999984&dist=400&details=true";
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View v = inflater.inflate(R.layout.fragment_metro, container, false);
+
+        locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+        checkPermissionLocation();
+        return v;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        lineTime = getActivity().findViewById(R.id.lineTime);
+        ligneProximite = getActivity().findViewById(R.id.ligneProximite);
+        txtResponse = getActivity().findViewById(R.id.txtResponse);
+
+        pDialog = new ProgressDialog(this.getContext());
+        pDialog.setMessage("Please wait...");
+        pDialog.setCancelable(false);
+
+        ligneProximite.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                        && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return;
+                }
+                if(locationManager != null){
+                    location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+
+                    if(location != null) {
+                        String myURL = getString(R.string.metro_api) + "x=" + location.getLongitude() + "&y=" + location.getLatitude() + "&dist=700&details=false";
+                        getProximityStations(myURL);
+                    }
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (ContextCompat.checkSelfPermission(getContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 400, 1, this);
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (ContextCompat.checkSelfPermission(getContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+
+            locationManager.removeUpdates(this);
+        }
+    }
+
+    public boolean checkPermissionLocation (){
+        if (ContextCompat.checkSelfPermission(this.getContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED){
+
+            if (ActivityCompat.shouldShowRequestPermissionRationale((Activity) this.getContext(), Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+                new AlertDialog.Builder(this.getContext())
+                        .setTitle(R.string.title_location_permission)
+                        .setMessage(R.string.text_location_permission)
+                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                ActivityCompat.requestPermissions(MetroFragment.this.getActivity(),
+                                        new String[]{
+                                                Manifest.permission.ACCESS_FINE_LOCATION},
+                                        MY_PERMISSIONS_REQUEST_LOCATION);
+                                         }
+                                })
+                                .create()
+                                .show();
+            } else {
+                // No explanation needed, we can request the permission.
+                ActivityCompat.requestPermissions(this.getActivity(),
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        MY_PERMISSIONS_REQUEST_LOCATION);
+            }
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    private void getProximityStations(String sURL) {
         showpDialog();
 
-        RequestQueue queue = Volley.newRequestQueue(this.getContext());
-        JsonArrayRequest req = new JsonArrayRequest(sURL,
+       // RequestQueue queue = Volley.newRequestQueue(this.getContext());
+        JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, sURL, null,
                 new Response.Listener<JSONArray>() {
+                    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
                     @Override
                     public void onResponse(JSONArray response) {
                         Log.d(TAG, response.toString());
 
                         try {
-
-                            jsonResponse = "";
                             for (int i = 0; i < response.length(); i++) {
 
-                                JSONObject ligneProximo = (JSONObject) response
+
+                                JSONObject ligne_proximite = (JSONObject) response
                                         .get(i);
+                               // JSONArray myArray = new JSONArray(response.get(i));
+                               // String arrayToJson = ligne_proximite.getString("ligne");
+
+                                String name = ligne_proximite.getString("name");
+                                String lines= ligne_proximite.getString("lines");
+
+                                jsonResponse += "Name: " + name + "\n\n";
+                                jsonResponse += "Lines: " + lines + "\n\n";
+
+                                //System.out.print(name);
 
 
+                              //  DonnesMetro metroData = new DonnesMetro(arrayToJson);
 
-
-                                String id = ligneProximo.getString("id");
-                                String name = ligneProximo.getString("name");
-                                String lon = ligneProximo.getString("lon");
-                                String lat = ligneProximo.getString("lat");
-                                String lines = ligneProximo.getString("lines");
-                                // JSONObject lines = ligneProximite.getJSONObject("lines");
-                                //String lon = lines.getString("lat");
-                                // String lat = lines.getString("mobile");
-
-                                jsonResponse += "id: " + id + "\n\n";
-                                jsonResponse += "name: " + name + "\n\n";
-                                jsonResponse += "lon: " + lon + "\n\n";
-                                jsonResponse += "lat: " + lat + "\n\n\n";
-                                jsonResponse += "lat: " + lines + "\n\n\n";
-
+                             //  ligneProximite.setText(metroData.getLignesProximite().getId());
+                             //  ligneProximite.setText(metroData.getLignesProximite().getName());
                             }
-
                             txtResponse.setText(jsonResponse);
 
                         } catch (JSONException e) {
@@ -125,7 +215,7 @@ public class MetroFragment extends Fragment {
         });
 
         // Adding request to request queue
-        MetroController.getInstance().addToRequestQueue(req, this.getContext());
+        MetroController.getInstance().addToRequestQueue(request, this.getContext());
 
 
     }
@@ -140,5 +230,55 @@ public class MetroFragment extends Fragment {
     private void hidepDialog() {
         if (pDialog.isShowing())
             pDialog.dismiss();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // permission was granted, yay! Do the
+                    // location-related task you need to do.
+                    if (ContextCompat.checkSelfPermission(this.getContext(),
+                            Manifest.permission.ACCESS_FINE_LOCATION)
+                            == PackageManager.PERMISSION_GRANTED) {
+
+                        //Request location updates:
+                        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 400, 1, this);
+                    }
+
+                } else {
+
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+
+                }
+                return;
+            }
+
+        }
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+
     }
 }

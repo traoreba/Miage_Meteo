@@ -1,15 +1,23 @@
 package com.example.miagemto.MetroDonnées.HorairesLigne;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class HoraireLigneParArret {
     private String description;
     private Pattern pattern;
-    private List<Time> times = null;
+    private List<Time> times = new ArrayList<>();
 
-    public HoraireLigneParArret(JSONObject tram_a) {
+    public HoraireLigneParArret(JSONObject js) {
+        try {
+            description = js.getString("id");
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     public String getDescription() {
