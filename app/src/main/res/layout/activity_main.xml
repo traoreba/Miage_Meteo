@@ -26,7 +26,7 @@
             android:layout_height="50dp"
             app:srcCompat="@drawable/ic_menu_accent_24dp"
             style="?android:attr/shadowRadius"
-            android:background="@drawable/round_button"
+            android:background="@android:color/transparent"
             android:theme="@android:style/Holo.ButtonBar"
             android:layout_margin="@dimen/margin_default"/>
 
