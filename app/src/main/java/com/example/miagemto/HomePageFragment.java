@@ -4,10 +4,12 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Icon;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
@@ -37,6 +39,9 @@ import org.osmdroid.api.IMapController;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.Marker;
+
+import java.util.ArrayList;
 
 public class HomePageFragment extends Fragment {
 
@@ -51,6 +56,8 @@ public class HomePageFragment extends Fragment {
     IMapController mapController;
 
     private MainActivity parentActivity;
+
+    Button refresh_position;
 
     @Nullable
     @Override
@@ -78,9 +85,43 @@ public class HomePageFragment extends Fragment {
         GeoPoint startPoint = new GeoPoint(parentActivity.currentBestLocation.getLatitude(), parentActivity.currentBestLocation.getLongitude());
         mapController.setZoom(18.0);
         mapController.setCenter(startPoint);
-
+        putMarkersOnMap(startPoint, "Ma position");
         refresh_weather();
 
+        String myURL = getString(R.string.metro_api) + "x=" + parentActivity.currentBestLocation.getLongitude() + "&y=" + parentActivity.currentBestLocation.getLatitude() + "&dist=700&details=false";
+        getProximityStations(myURL);
+
+        refresh_position = getActivity().findViewById(R.id.refresh_map);
+
+        refresh_position.setOnClickListener(
+                new Button.OnClickListener(){
+
+                    @Override
+                    public void onClick(View v) {
+                        showpDialog();
+                        refresh_weather();
+                        refresh_map_view();
+                        hidepDialog();
+                    }
+                }
+        );
+    }
+
+    private void putMarkersOnMap(GeoPoint geoPoint, String description){
+        Marker m = new Marker(map_view);
+        m.setTextLabelBackgroundColor(R.color.textPrimary);
+        m.setTextLabelFontSize(R.dimen.text_max);
+        m.setTextLabelForegroundColor(R.color.textIcon);
+        m.setTitle(description);
+        //must set the icon to null last
+        m.setIcon(null);
+        m.setPosition(new GeoPoint(geoPoint.getLatitude(), geoPoint.getLongitude()));
+        map_view.getOverlays().add(m);
+    }
+
+    private void refresh_map_view() {
+        GeoPoint startPoint = new GeoPoint(parentActivity.currentBestLocation.getLatitude(), parentActivity.currentBestLocation.getLongitude());
+        mapController.setCenter(startPoint);
     }
 
     @Override
@@ -96,7 +137,6 @@ public class HomePageFragment extends Fragment {
     }
 
     public void refresh_weather() {
-
         //RequestQueue queue = Volley.newRequestQueue();
 
         String requestURL = getString(R.string.weather_api)
@@ -133,6 +173,48 @@ public class HomePageFragment extends Fragment {
                     }
                 });
         mQueueWeather.add(weather_request);
+    }
+
+    private void getProximityStations(String sURL) {
+        showpDialog();
+
+        // RequestQueue queue = Volley.newRequestQueue(this.getContext());
+        JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, sURL, null,
+                new Response.Listener<JSONArray>() {
+                    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        Log.d(TAG, response.toString());
+
+                        try {
+                            ArrayList<GeoPoint> nearStations = new ArrayList<GeoPoint>();
+                            for (int i = 0; i < response.length(); i++) {
+                                JSONObject ligne_proximite = (JSONObject) response.get(i);
+                                nearStations.add(new GeoPoint(ligne_proximite.getDouble("lat"),ligne_proximite.getDouble("lon")));
+                                putMarkersOnMap(new GeoPoint(ligne_proximite.getDouble("lat"),ligne_proximite.getDouble("lon")),
+                                        ligne_proximite.getString("name") + "\nPochains passages\n"
+                                                + ligne_proximite.getJSONArray("lines").toString());
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            Toast.makeText(HomePageFragment.this.getContext(),
+                                    "Error: " + e.getMessage(),
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                VolleyLog.d(TAG, "Error: " + error.getMessage());
+                Toast.makeText(HomePageFragment.this.getContext(),
+                        error.getMessage(), Toast.LENGTH_SHORT).show();
+                hidepDialog();
+            }
+        });
+
+        mQueueWeather.add(request);
+        hidepDialog();
     }
 
 
