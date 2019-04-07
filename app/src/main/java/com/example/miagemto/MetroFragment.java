@@ -176,22 +176,12 @@ public class MetroFragment extends Fragment implements LocationListener {
 
                                 JSONObject ligne_proximite = (JSONObject) response
                                         .get(i);
-                               // JSONArray myArray = new JSONArray(response.get(i));
-                               // String arrayToJson = ligne_proximite.getString("ligne");
 
                                 String name = ligne_proximite.getString("name");
                                 String lines= ligne_proximite.getString("lines");
 
                                 jsonResponse += "Name: " + name + "\n\n";
                                 jsonResponse += "Lines: " + lines + "\n\n";
-
-                                //System.out.print(name);
-
-
-                              //  DonnesMetro metroData = new DonnesMetro(arrayToJson);
-
-                             //  ligneProximite.setText(metroData.getLignesProximite().getId());
-                             //  ligneProximite.setText(metroData.getLignesProximite().getName());
                             }
                             txtResponse.setText(jsonResponse);
 
@@ -262,6 +252,57 @@ public class MetroFragment extends Fragment implements LocationListener {
 
         }
     }
+
+    public void getLigneHoraire(){
+        showpDialog();
+        String sURL = "https://data.metromobilite.fr/api/ficheHoraires/json?route=SEM:D&time=1554636964145";
+        JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, sURL, null,
+                new Response.Listener<JSONArray>() {
+                    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        Log.d(TAG, response.toString());
+
+                        try {
+                            for (int i = 0; i < response.length(); i++) {
+
+
+                                JSONObject horaire = (JSONObject) response
+                                        .get(i);
+
+                                String trips = horaire.getString("trips");
+                                String stopName = horaire.getString("stopName");
+
+                                jsonResponse += "trips: " + trips + "\n\n";
+                                jsonResponse += "stopName: " + stopName + "\n\n";
+                            }
+                            txtResponse.setText(jsonResponse);
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            Toast.makeText(MetroFragment.this.getContext(),
+                                    "Error: " + e.getMessage(),
+                                    Toast.LENGTH_LONG).show();
+                        }
+
+                        hidepDialog();
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                VolleyLog.d(TAG, "Error: " + error.getMessage());
+                Toast.makeText(MetroFragment.this.getContext(),
+                        error.getMessage(), Toast.LENGTH_SHORT).show();
+                hidepDialog();
+            }
+        });
+
+        // Adding request to request queue
+        MetroController.getInstance().addToRequestQueue(request, this.getContext());
+
+
+    }
+
 
     @Override
     public void onLocationChanged(Location location) {

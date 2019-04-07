@@ -35,7 +35,6 @@ public class DonnesMetro {
             metro_JsonString = sJsonString;
             JSONObject object = new JSONObject(sJsonString);
             ligneProximite = new LignesProximite(new JSONObject(object.getString("ligneProximite")));
-            horligneArret = new HoraireLigneParArret(new JSONObject(object.getString("horaireLigneArret")));
         } catch (JSONException e) {
             String sMsg = e.getMessage();
         }
