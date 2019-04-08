@@ -7,7 +7,6 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.NavigationView;
@@ -38,7 +37,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
     private static final int TWO_MINUTES = 1000 * 60 * 2;
     private static final int THIRTY_METERS = 300;
     public Location currentBestLocation;
-    private final int MY_PERMISDION = 10;
+    private final int MY_PERMISSION = 10;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +51,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
 
             ActivityCompat.requestPermissions(this,new String[]{
                     Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION
-            }, MY_PERMISDION);
+            }, MY_PERMISSION);
         }
         locationManager.requestLocationUpdates(locationProvider, TWO_MINUTES, THIRTY_METERS, this);
         currentBestLocation = locationManager.getLastKnownLocation(locationProvider);
@@ -91,7 +90,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
-            case MY_PERMISDION:
+            case MY_PERMISSION:
                 if( grantResults[0] > 0 && grantResults[1] ==0 ){
                     configureActivity();
                 }
@@ -121,7 +120,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener{
                 selectedFragment = new InfoTrafficFragment();
                 break;
             case R.id.nav_schedule:
-                selectedFragment = new AccountFragment();
+                selectedFragment = new ScheduleFragment();
                 break;
             default:
                 break;

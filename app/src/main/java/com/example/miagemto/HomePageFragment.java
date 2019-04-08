@@ -3,6 +3,7 @@ package com.example.miagemto;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
 import android.os.Build;
 import android.os.Bundle;
@@ -58,6 +59,7 @@ public class HomePageFragment extends Fragment {
     private MainActivity parentActivity;
 
     Button refresh_position;
+    Marker myPosition;
 
     @Nullable
     @Override
@@ -85,7 +87,7 @@ public class HomePageFragment extends Fragment {
         GeoPoint startPoint = new GeoPoint(parentActivity.currentBestLocation.getLatitude(), parentActivity.currentBestLocation.getLongitude());
         mapController.setZoom(18.0);
         mapController.setCenter(startPoint);
-        putMarkersOnMap(startPoint, "Ma position");
+        putMarkersOnMap(startPoint, "Ma position", getContext().getResources().getDrawable(R.drawable.ic_my_location_black_24dp), true);
         refresh_weather();
 
         String myURL = getString(R.string.metro_api) + "x=" + parentActivity.currentBestLocation.getLongitude() + "&y=" + parentActivity.currentBestLocation.getLatitude() + "&dist=700&details=false";
@@ -107,15 +109,18 @@ public class HomePageFragment extends Fragment {
         );
     }
 
-    private void putMarkersOnMap(GeoPoint geoPoint, String description){
+    private void putMarkersOnMap(GeoPoint geoPoint, String description, Drawable icon, boolean isMyPosition){
         Marker m = new Marker(map_view);
         m.setTextLabelBackgroundColor(R.color.textPrimary);
         m.setTextLabelFontSize(R.dimen.text_max);
         m.setTextLabelForegroundColor(R.color.textIcon);
         m.setTitle(description);
         //must set the icon to null last
-        m.setIcon(null);
+        m.setIcon(icon);
         m.setPosition(new GeoPoint(geoPoint.getLatitude(), geoPoint.getLongitude()));
+        if(isMyPosition) {
+            map_view.getOverlays().remove(myPosition);
+        }
         map_view.getOverlays().add(m);
     }
 
@@ -193,7 +198,9 @@ public class HomePageFragment extends Fragment {
                                 nearStations.add(new GeoPoint(ligne_proximite.getDouble("lat"),ligne_proximite.getDouble("lon")));
                                 putMarkersOnMap(new GeoPoint(ligne_proximite.getDouble("lat"),ligne_proximite.getDouble("lon")),
                                         ligne_proximite.getString("name") + "\nPochains passages\n"
-                                                + ligne_proximite.getJSONArray("lines").toString());
+                                                + ligne_proximite.getJSONArray("lines").toString(),
+                                        getContext().getResources().getDrawable(R.drawable.ic_place_24dp),
+                                        true);
                             }
 
                         } catch (JSONException e) {

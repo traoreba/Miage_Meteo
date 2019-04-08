@@ -102,4 +102,5 @@
     <string name="weater_icon">http://openweathermap.org/img/w/</string>
     <string name="api_id">91d70d4351262df9c5ac186351776afd</string>
     <string name="metro_api">http://data.metromobilite.fr/api/linesNear/json?</string>
+    <string name="confirm_password">Confirmer le mot de passe</string>
 </resources>
