@@ -1,11 +1,16 @@
 package com.example.miagemto;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
+import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
@@ -31,27 +36,36 @@ import com.squareup.picasso.Picasso;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.osmdroid.api.IMapController;
+import org.osmdroid.config.Configuration;
+import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.Marker;
+
+import java.util.ArrayList;
 
 public class HomePageFragment extends Fragment {
-
-    SwipeRefreshLayout swipe_refresh;
 
     ImageView weather_icon;
     TextView weather_city, weather_temperature;
     RequestQueue mQueueWeather;
 
     private static String TAG = HomePageFragment.class.getSimpleName();
-    private Button horairesLignes, ligneAProximite, DescriptionLigne;
-    private LignesProximite ligneProximo;
-    // Progress dialog
     private ProgressDialog pDialog;
-    private TextView txtResponse;
-    // temporary string to show the parsed response
-    private String jsonResponse;
+
+    MapView map_view;
+    IMapController mapController;
+
+    private MainActivity parentActivity;
+
+    Button refresh_position;
+    Marker myPosition;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        Context ctx = getActivity().getApplicationContext();
+        Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx));
         return inflater.inflate(R.layout.fragment_home_page, container, false);
     }
 
@@ -64,55 +78,94 @@ public class HomePageFragment extends Fragment {
         weather_temperature = getActivity().findViewById(R.id.weather_temperature);
         mQueueWeather = Volley.newRequestQueue(getContext());
 
-        swipe_refresh = getActivity().findViewById(R.id.swipe_refresh);
-        swipe_refresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                refresh_weather();
-                callWebservice();
-            }
-        });
-
-        horairesLignes = getActivity().findViewById(R.id.lineTime);
-        ligneAProximite = getActivity().findViewById(R.id.ligneProximite);
-        txtResponse = getActivity().findViewById(R.id.txtResponse);
-
         pDialog = new ProgressDialog(this.getContext());
         pDialog.setMessage("Please wait...");
         pDialog.setCancelable(false);
 
-        ligneAProximite.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                // making json array request
-                callWebservice();
-            }
-        });
-
+        map_view = getActivity().findViewById(R.id.map_view);
+        mapController = map_view.getController();
+        GeoPoint startPoint = new GeoPoint(parentActivity.currentBestLocation.getLatitude(), parentActivity.currentBestLocation.getLongitude());
+        mapController.setZoom(18.0);
+        mapController.setCenter(startPoint);
+        putMarkersOnMap(startPoint, "Ma position", getContext().getResources().getDrawable(R.drawable.ic_my_location_black_24dp), true);
         refresh_weather();
 
+        String myURL = getString(R.string.metro_api) + "x=" + parentActivity.currentBestLocation.getLongitude() + "&y=" + parentActivity.currentBestLocation.getLatitude() + "&dist=700&details=false";
+        getProximityStations(myURL);
 
+        refresh_position = getActivity().findViewById(R.id.refresh_map);
+
+        refresh_position.setOnClickListener(
+                new Button.OnClickListener(){
+
+                    @Override
+                    public void onClick(View v) {
+                        showpDialog();
+                        refresh_weather();
+                        refresh_map_view();
+                        hidepDialog();
+                    }
+                }
+        );
+    }
+
+    private void putMarkersOnMap(GeoPoint geoPoint, String description, Drawable icon, boolean isMyPosition){
+        Marker m = new Marker(map_view);
+        m.setTextLabelBackgroundColor(R.color.textPrimary);
+        m.setTextLabelFontSize(R.dimen.text_max);
+        m.setTextLabelForegroundColor(R.color.textIcon);
+        m.setTitle(description);
+        //must set the icon to null last
+        m.setIcon(icon);
+        m.setPosition(new GeoPoint(geoPoint.getLatitude(), geoPoint.getLongitude()));
+        if(isMyPosition) {
+            map_view.getOverlays().remove(myPosition);
+        }
+        map_view.getOverlays().add(m);
+    }
+
+    private void refresh_map_view() {
+        GeoPoint startPoint = new GeoPoint(parentActivity.currentBestLocation.getLatitude(), parentActivity.currentBestLocation.getLongitude());
+        mapController.setCenter(startPoint);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        map_view.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        map_view.onPause();
     }
 
     public void refresh_weather() {
-
         //RequestQueue queue = Volley.newRequestQueue();
 
-        JsonObjectRequest weather_request =  new JsonObjectRequest(Request.Method.GET, getString(R.string.weather_api),null,
+        String requestURL = getString(R.string.weather_api)
+                + "?lat=" + parentActivity.currentBestLocation.getLatitude()
+                + "&lon=" + parentActivity.currentBestLocation.getLongitude()
+                + "&units=metric&lang=fr"
+                + "&appid=" + getString(R.string.api_id);
+
+        JsonObjectRequest weather_request =  new JsonObjectRequest(Request.Method.GET, requestURL,null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
-                            JSONObject city_info = response.getJSONObject("city_info");
-                            JSONObject current_condition = response.getJSONObject("current_condition");
-                            JSONObject fcst_day_0 = response.getJSONObject("fcst_day_0");
-                            weather_city.setText(city_info.getString("name"));
-                            Picasso.get().load(current_condition.getString("icon")).into(weather_icon);
-                            weather_temperature.setText(current_condition.getString("tmp") + "°\n"
-                                    +fcst_day_0.getString("tmin")+ "° /"
-                                    +fcst_day_0.getString("tmax")+"°\n");
-                            weather_temperature.append(current_condition.getString("condition"));
+                            JSONObject weather = (JSONObject) response.getJSONArray("weather").get(0);
+                            JSONObject main = response.getJSONObject("main");
+                            weather_city.setText(response.getString("name"));
+                            Picasso.get().load(getString(R.string.weater_icon)
+                                    + weather.getString("icon")+".png").into(weather_icon);
+
+                            weather_icon.setScaleType(ImageView.ScaleType.FIT_XY);
+                            weather_temperature.setText((int)main.getDouble("temp") + "°\n"
+                                    +(int)main.getDouble("temp_min")+ "° /"
+                                    +(int)main.getDouble("temp_max")+"°\n");
+                            weather_temperature.append(weather.getString("description"));
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -125,49 +178,30 @@ public class HomePageFragment extends Fragment {
                     }
                 });
         mQueueWeather.add(weather_request);
-        swipe_refresh.setRefreshing(false);
     }
 
-    private void callWebservice () {
-        String sURL = "http://data.metromobilite.fr/api/linesNear/json?x=5.709360123&y=45.176494599999984&dist=400&details=true";
+    private void getProximityStations(String sURL) {
         showpDialog();
 
-        RequestQueue queue = Volley.newRequestQueue(this.getContext());
-        JsonArrayRequest req = new JsonArrayRequest(sURL,
+        // RequestQueue queue = Volley.newRequestQueue(this.getContext());
+        JsonArrayRequest request = new JsonArrayRequest(Request.Method.GET, sURL, null,
                 new Response.Listener<JSONArray>() {
+                    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
                     @Override
                     public void onResponse(JSONArray response) {
                         Log.d(TAG, response.toString());
 
                         try {
-
-                            jsonResponse = "";
+                            ArrayList<GeoPoint> nearStations = new ArrayList<GeoPoint>();
                             for (int i = 0; i < response.length(); i++) {
-
-                                JSONObject ligneProximo = (JSONObject) response
-                                        .get(i);
-
-
-
-
-                                String id = ligneProximo.getString("id");
-                                String name = ligneProximo.getString("name");
-                                String lon = ligneProximo.getString("lon");
-                                String lat = ligneProximo.getString("lat");
-                                String lines = ligneProximo.getString("lines");
-                                // JSONObject lines = ligneProximite.getJSONObject("lines");
-                                //String lon = lines.getString("lat");
-                                // String lat = lines.getString("mobile");
-
-                                jsonResponse += "id: " + id + "\n\n";
-                                jsonResponse += "name: " + name + "\n\n";
-                                jsonResponse += "lon: " + lon + "\n\n";
-                                jsonResponse += "lat: " + lat + "\n\n\n";
-                                jsonResponse += "lat: " + lines + "\n\n\n";
-
+                                JSONObject ligne_proximite = (JSONObject) response.get(i);
+                                nearStations.add(new GeoPoint(ligne_proximite.getDouble("lat"),ligne_proximite.getDouble("lon")));
+                                putMarkersOnMap(new GeoPoint(ligne_proximite.getDouble("lat"),ligne_proximite.getDouble("lon")),
+                                        ligne_proximite.getString("name") + "\nPochains passages\n"
+                                                + ligne_proximite.getJSONArray("lines").toString(),
+                                        getContext().getResources().getDrawable(R.drawable.ic_place_24dp),
+                                        true);
                             }
-
-                            txtResponse.setText(jsonResponse);
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -175,8 +209,6 @@ public class HomePageFragment extends Fragment {
                                     "Error: " + e.getMessage(),
                                     Toast.LENGTH_LONG).show();
                         }
-
-                        hidepDialog();
                     }
                 }, new Response.ErrorListener() {
             @Override
@@ -188,10 +220,8 @@ public class HomePageFragment extends Fragment {
             }
         });
 
-        // Adding request to request queue
-        MetroController.getInstance().addToRequestQueue(req, this.getContext());
-
-
+        mQueueWeather.add(request);
+        hidepDialog();
     }
 
 
@@ -203,5 +233,13 @@ public class HomePageFragment extends Fragment {
     private void hidepDialog() {
         if (pDialog.isShowing())
             pDialog.dismiss();
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof  MainActivity){
+            parentActivity = (MainActivity) context;
+        }
     }
 }

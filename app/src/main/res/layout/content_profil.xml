@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -8,5 +8,69 @@
     tools:context=".ProfilActivity"
     tools:showIn="@layout/activity_profil">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:gravity="center|top"
+            android:orientation="vertical"
+            android:layout_margin="@dimen/margin_default">
 
-</android.support.constraint.ConstraintLayout>
+            <de.hdodenhof.circleimageview.CircleImageView
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:layout_width="140dp"
+                android:layout_height="140dp"
+                app:civ_border_width="2dp"
+                app:civ_border_color="@android:color/transparent"
+                android:src="@mipmap/ic_grenoble_foreground"/>
+
+            <EditText
+                android:id="@+id/name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Nom"
+                android:layout_marginTop="@dimen/margin_default"
+                android:gravity="center"
+                />
+            <EditText
+                android:id="@+id/surname"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Prénom"
+                android:gravity="center"
+                />
+            <EditText
+                android:id="@+id/email"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Email"
+                android:gravity="center"
+                />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_margin="@dimen/margin_default"
+                android:weightSum="1">
+                <Button
+                    android:id="@+id/back_home"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/Base.Widget.AppCompat.Button"
+                    android:text="Retour Accueil"
+                    android:layout_gravity="center"
+                    android:layout_margin="@dimen/margin_default" />
+                <Button
+                    android:id="@+id/change_data"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/Base.Widget.AppCompat.Button"
+                    android:text="Modifier"
+                    android:layout_gravity="center"
+                    android:layout_margin="@dimen/margin_default"
+                    android:layout_weight="0.5"/>
+            </LinearLayout>
+
+        </LinearLayout>
+
+</RelativeLayout>

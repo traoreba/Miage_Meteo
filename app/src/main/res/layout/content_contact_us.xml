@@ -8,4 +8,72 @@
     tools:context=".ContactUsActivity"
     tools:showIn="@layout/activity_contact_us">
 
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center|top"
+        android:layout_marginTop="@dimen/margin_default">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Merci d'utiliser Miage Météo"
+            android:layout_margin="@dimen/margin_default"
+            />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="1">
+            <TextView
+                android:layout_weight="0.6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_gravity="center"
+                android:text="Nous envoyer un mail au \n balletraore15@gmail.com"
+                />
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/fab_send_email"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="@dimen/fab_margin"
+                app:srcCompat="@android:drawable/ic_dialog_email" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="1">
+            <TextView
+                android:layout_weight="0.6"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_gravity="center"
+                android:text="Nous envoyer appeler au      \n 07 55 49 28 72"
+                />
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/fab_call"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="@dimen/fab_margin"
+                app:srcCompat="@android:drawable/ic_menu_call"
+                android:tint="@android:color/white"/>
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/back_home"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/Base.Widget.AppCompat.Button"
+            android:text="Retour Accueil"
+            android:layout_margin="@dimen/margin_default"/>
+    </LinearLayout>
+
+
 </android.support.constraint.ConstraintLayout>

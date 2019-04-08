@@ -12,9 +12,9 @@
             android:title="@string/schedule"/>
 
         <item
-            android:id="@+id/nav_itinerary"
-            android:icon="@drawable/ic_navigation_24dp"
-            android:title="@string/itinerary"/>
+            android:id="@+id/nav_info_traffic"
+            android:icon="@drawable/ic_traffic_24dp"
+            android:title="@string/traffic_info"/>
 
         <item
             android:id="@+id/nav_favorites"
