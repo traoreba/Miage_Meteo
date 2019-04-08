@@ -1,0 +1,35 @@
+{
+  "project_info": {
+    "project_number": "403262699656",
+    "firebase_url": "https://metro-f1505.firebaseio.com",
+    "project_id": "metro-f1505",
+    "storage_bucket": "metro-f1505.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:403262699656:android:268157936d48d525",
+        "android_client_info": {
+          "package_name": "com.example.miagemto"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBnWn8lwLh5MUc2hQCEnTRNAHjF1FpJ-3Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "403262699656-30kvndsel3dc2tc4hu10spkc7iq9hebm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
