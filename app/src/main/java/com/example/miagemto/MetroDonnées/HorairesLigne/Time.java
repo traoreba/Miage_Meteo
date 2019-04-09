@@ -1,5 +1,8 @@
 package com.example.miagemto.MetroDonnées.HorairesLigne;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class Time {
 
     private String stopId;
@@ -13,7 +16,7 @@ public class Time {
     private Boolean timepoint;
     private Boolean realtime;
     private Integer serviceDay;
-    private String tripId;
+    private Integer tripId;
 
     public String getStopId() {
         return stopId;
@@ -103,12 +106,47 @@ public class Time {
         this.serviceDay = serviceDay;
     }
 
-    public String getTripId() {
+    public Integer getTripId() {
         return tripId;
     }
 
-    public void setTripId(String tripId) {
+    public void setTripId(Integer tripId) {
         this.tripId = tripId;
+    }
+
+    public Time (JSONObject js){
+        try {
+            this.stopId = js.getString("stopId");
+            this.stopName = js.getString("stopName");
+            this.scheduledArrival = js.getInt("scheduledArrival");
+            this.realtimeArrival = js.getInt("realtimeArrival");
+            this.realtimeDeparture = js.getInt("realtimeDeparture");
+            this.arrivalDelay = js.getInt("arrivalDelay");
+            this.departureDelay = js.getInt("departureDelay");
+            this.timepoint = js.getBoolean("timepoint");
+            this.realtime = js.getBoolean("realtime");
+            this.serviceDay = js.getInt("serviceDay");
+            this.tripId = js.getInt("tripId");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static int hourToSeconds(int hours){
+        int h = hours * 60 * 60;
+        return h;
+    }
+
+    private static int minutesToSeconds(int minutes) {
+        int mn = minutes * 60;
+        return mn;
+    }
+
+    private static String timeConversion(int totalSeconds) {
+        int hours = totalSeconds / 60 / 60;
+        int minutes = (totalSeconds - (hourToSeconds(hours))) / 60;
+
+        return hours + "h" + minutes;
     }
 
 }
