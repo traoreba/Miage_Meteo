@@ -4,12 +4,29 @@
     android:layout_height="match_parent"
     android:background="@drawable/gradient_background">
 
-    <ListView
-        android:id="@+id/list_lines"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Horaires de Tram"
-        android:textSize="32sp"
-        android:layout_centerInParent="true"/>
+        android:layout_marginLeft="50dp"
+        android:layout_marginTop="50dp"
+        android:orientation="vertical">
+
+        <GridView
+            android:id="@+id/list_lines"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:textSize="32sp"
+            android:numColumns="3">
+
+        </GridView>
+        <!--ListView
+            android:id="@+id/list_lines"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:textSize="32sp"
+            android:layout_centerInParent="true"
+            android:scrollbars="none"/-->
+
+    </LinearLayout>
 
 </RelativeLayout>

@@ -8,7 +8,6 @@
     <string name="password">Mot de passe</string>
     <string name="login_tag">Se connecter</string>
     <string name="sign_in_tag">Créer un compte</string>
-    <string name="title_activity_login">Sign in</string>
     <string name="error_bad_login">Mauvais login</string>
     <string name="home">Accueil</string>
     <string name="favorite">Favoris</string>
@@ -101,6 +100,11 @@
     <string name="weather_api">https://api.openweathermap.org/data/2.5/weather</string>
     <string name="weater_icon">http://openweathermap.org/img/w/</string>
     <string name="api_id">91d70d4351262df9c5ac186351776afd</string>
-    <string name="metro_api">http://data.metromobilite.fr/api/linesNear/json?</string>
     <string name="confirm_password">Confirmer le mot de passe</string>
+    <string name="title_activity_login">Sign in</string>
+    <string name="title_location_permission">Veuillez donner l\'autorisation d\'activer le GPS</string>
+    <string name="ok">OK</string>
+    <string name="text_location_permission">Voulez vous activer votre GPS</string>
+    <string name="metro_api">http://data.metromobilite.fr/api/</string>
+
 </resources>

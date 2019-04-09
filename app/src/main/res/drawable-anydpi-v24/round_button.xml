@@ -2,9 +2,8 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_pressed="false">
         <shape android:shape="oval">
-            <gradient
-                android:centerColor="@color/colorLightPrimary"
-                android:type="sweep"/>
+            <solid
+                android:color="@color/colorLightPrimary" />
         </shape>
     </item>
     <item android:state_pressed="true">
