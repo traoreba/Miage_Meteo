@@ -38,7 +38,6 @@ public class LineStops extends AppCompatActivity {
     private ProgressDialog pDialog;
 
     ListView list_stop, list_stop2;
-    RequestQueue mQueueQueue;
     private String id;
     LigneTram ligneTram;
     private List<String> favoritesStops = new ArrayList<>();
@@ -52,7 +51,6 @@ public class LineStops extends AppCompatActivity {
         pDialog = new ProgressDialog(this);
         pDialog.setMessage("Please wait...");
         pDialog.setCancelable(false);
-        mQueueQueue = Volley.newRequestQueue(this);
 
         id = getIntent().getStringExtra(ScheduleFragment.EXTRA_ID);
 
@@ -97,9 +95,7 @@ public class LineStops extends AppCompatActivity {
         });
 
 
-        mQueueQueue.add(request);
-        // Adding request to request queue
-        //MetroController.getInstance().addToRequestQueue(request, this.getContext());
+        MetroController.getInstance().addToRequestQueue(request, this);
     }
 
     class ListStopsAdapter extends BaseAdapter {

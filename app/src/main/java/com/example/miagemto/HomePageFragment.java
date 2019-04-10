@@ -54,7 +54,6 @@ public class HomePageFragment extends Fragment implements LocationListener {
 
     ImageView weather_icon;
     TextView weather_city, weather_temperature;
-    RequestQueue mQueueWeather;
 
     private static String TAG = HomePageFragment.class.getSimpleName();
     private ProgressDialog pDialog;
@@ -90,7 +89,6 @@ public class HomePageFragment extends Fragment implements LocationListener {
         weather_city = getActivity().findViewById(R.id.weather_city);
         weather_icon = getActivity().findViewById(R.id.weather_icon);
         weather_temperature = getActivity().findViewById(R.id.weather_temperature);
-        mQueueWeather = Volley.newRequestQueue(getContext());
 
         pDialog = new ProgressDialog(this.getContext());
         pDialog.setMessage("Please wait...");
@@ -179,7 +177,6 @@ public class HomePageFragment extends Fragment implements LocationListener {
     }
 
     public void refresh_weather() {
-        //RequestQueue queue = Volley.newRequestQueue();
 
         String requestURL = getString(R.string.weather_api)
                 + "?lat=" + currentBestLocation.getLatitude()
@@ -214,7 +211,7 @@ public class HomePageFragment extends Fragment implements LocationListener {
                         error.printStackTrace();
                     }
                 });
-        mQueueWeather.add(weather_request);
+        MetroController.getInstance().addToRequestQueue(weather_request, getContext());
     }
 
     private void getProximityStations() {
@@ -235,8 +232,9 @@ public class HomePageFragment extends Fragment implements LocationListener {
                             for (int i = 0; i < response.length(); i++) {
                                 JSONObject ligne_proximite = (JSONObject) response.get(i);
                                 nearStations.add(new GeoPoint(ligne_proximite.getDouble("lat"),ligne_proximite.getDouble("lon")));
+
                                 putMarkersOnMap(new GeoPoint(ligne_proximite.getDouble("lat"),ligne_proximite.getDouble("lon")),
-                                        ligne_proximite.getString("name") + "\nPochains passages\n"
+                                        ligne_proximite.getString("name") + "\nLignes: \n"
                                                 + ligne_proximite.getJSONArray("lines").toString(),
                                         getResources().getDrawable(R.drawable.ic_place_24dp),
                                         true);
@@ -259,7 +257,7 @@ public class HomePageFragment extends Fragment implements LocationListener {
             }
         });
 
-        mQueueWeather.add(request);
+        MetroController.getInstance().addToRequestQueue(request, getContext());
         hidepDialog();
     }
 

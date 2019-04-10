@@ -21,7 +21,7 @@
             <TextView
                 android:id="@+id/title_direction"
                 android:layout_width="match_parent"
-                android:layout_height="30dp"
+                android:layout_height="35dp"
                 android:gravity="center"
                 android:background="@color/colorPrimary"
                 android:textColor="@color/colorAccent"/>
@@ -39,7 +39,7 @@
             <TextView
                 android:id="@+id/title_direction2"
                 android:layout_width="match_parent"
-                android:layout_height="30dp"
+                android:layout_height="35dp"
                 android:gravity="center"
                 android:background="@color/colorPrimary"
                 android:textColor="@color/colorAccent"/>

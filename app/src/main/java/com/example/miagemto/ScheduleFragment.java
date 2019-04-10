@@ -32,8 +32,6 @@ public class ScheduleFragment extends Fragment {
 
     private ProgressDialog pDialog;
 
-    RequestQueue mQueueSchedule;
-
     public static final String EXTRA_ID = "id";
     private GridView list_lines;
     private List<Ligne> listLignes = new ArrayList();
@@ -47,8 +45,6 @@ public class ScheduleFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-
-        mQueueSchedule = Volley.newRequestQueue(getContext());
 
         pDialog = new ProgressDialog(this.getContext());
         pDialog.setMessage("Please wait...");
@@ -94,7 +90,7 @@ public class ScheduleFragment extends Fragment {
                     }
                 });
 
-        mQueueSchedule.add(linesRequest);
+        MetroController.getInstance().addToRequestQueue(linesRequest, getContext());
     }
 
     private void configureListView(){
