@@ -1,5 +1,4 @@
-# Miage_Meteo
-Projet de développement Android
+# Projet de développement Android
 Assane Bodiang / Ballé Traoré
 Université Grenoble Alpes
 
