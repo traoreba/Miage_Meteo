@@ -21,6 +21,11 @@
         android:textSize="22sp"
         android:layout_margin="@dimen/margin_default"/>
 
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@mipmap/ic_logo"/>
+
     <EditText
         android:id="@+id/login_form"
         android:layout_width="match_parent"

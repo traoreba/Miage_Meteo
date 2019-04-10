@@ -2,20 +2,17 @@ package com.example.miagemto;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.GridView;
-import android.widget.PopupWindow;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -23,13 +20,10 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.miagemto.MetroDonnées.DescriptionLigne.Ligne;
-import com.example.miagemto.MetroDonnées.HorairesLigne.LigneTram;
 
 import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -110,11 +104,14 @@ public class ScheduleFragment extends Fragment {
     }
 
     private void showpDialog() {
+        getActivity().getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
         if (!pDialog.isShowing())
             pDialog.show();
     }
 
     private void hidepDialog() {
+        getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
         if (pDialog.isShowing())
             pDialog.dismiss();
     }

@@ -16,16 +16,13 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 public class MainActivity extends AppCompatActivity {
 
     DrawerLayout m_drawer_layout;
     NavigationView m_navigation_view;
     ImageButton button_show_drawer;
     BottomNavigationView bottomNav;
+    private int currentNav;
 
     FragmentManager fragment_manager;
 
@@ -59,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        configureNavHeader("Ballé");
+        configureNavHeader(getIntent().getStringExtra(LoginActivity.USER_NAME));
     }
 
     private BottomNavigationView.OnNavigationItemSelectedListener bottomNavListener =
@@ -71,6 +68,9 @@ public class MainActivity extends AppCompatActivity {
             };
 
     private boolean manageNavBottomOnSelectedItem(MenuItem item) {
+        if (item.getItemId() == currentNav)
+            return true;
+        currentNav = item.getItemId();
         Fragment selectedFragment = null;
         switch (item.getItemId()){
             case R.id.nav_home:

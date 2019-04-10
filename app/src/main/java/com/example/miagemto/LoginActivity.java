@@ -16,17 +16,17 @@ public class LoginActivity extends AppCompatActivity{
 
     EditText login_form, password_form;
     Button btn_login, btn_sign_in;
-
+    public static String USER_NAME = "name";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        login_form = (EditText) findViewById(R.id.login_form);
-        password_form = (EditText) findViewById(R.id.password_form);
-        btn_login = (Button) findViewById(R.id.btn_Login);
-        btn_sign_in = (Button) findViewById(R.id.btn_create_account);
+        login_form = findViewById(R.id.login_form);
+        password_form = findViewById(R.id.password_form);
+        btn_login = findViewById(R.id.btn_Login);
+        btn_sign_in = findViewById(R.id.btn_create_account);
 
         btn_login.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -57,8 +57,10 @@ public class LoginActivity extends AppCompatActivity{
             password_form.setError(sErrorLogin);
             return;
         }*/
-
-        startActivity(new Intent(this, MainActivity.class));
+        String test = login_form.getText().toString();
+        Intent mainIntent = new Intent(this, MainActivity.class);
+        mainIntent.putExtra(USER_NAME,login_form.getText().toString() );
+        startActivity(mainIntent);
     }
 
     private void executeBtn_Sign_onClick(){

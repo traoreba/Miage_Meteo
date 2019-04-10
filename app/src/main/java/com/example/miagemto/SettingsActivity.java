@@ -1,6 +1,5 @@
 package com.example.miagemto;
 
-import android.Manifest;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.RequiresApi;
@@ -58,9 +57,9 @@ public class SettingsActivity extends AppCompatActivity {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if(isChecked) {
-
+                    //TODO
                 }else{
-
+                    //TODO
                 }
             }
         });

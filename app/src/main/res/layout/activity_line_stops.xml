@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -8,10 +8,47 @@
     android:id="@+id/line_stop_view_root"
     >
 
-    <ListView
-        android:id="@+id/stop_list"
-        android:layout_margin="@dimen/margin_default"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"></ListView>
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:weightSum="1">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_weight="0.5">
+            <TextView
+                android:id="@+id/title_direction"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:gravity="center"
+                android:background="@color/colorPrimary"
+                android:textColor="@color/colorAccent"/>
+            <ListView
+                android:id="@+id/stop_list"
+                android:layout_margin="@dimen/margin_default"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"></ListView>
+        </LinearLayout>
 
-</android.support.constraint.ConstraintLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/title_direction2"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:gravity="center"
+                android:background="@color/colorPrimary"
+                android:textColor="@color/colorAccent"/>
+            <ListView
+                android:id="@+id/stop_list2"
+                android:layout_margin="@dimen/margin_default"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"></ListView>
+    </LinearLayout>
+    </LinearLayout>
+
+</RelativeLayout>

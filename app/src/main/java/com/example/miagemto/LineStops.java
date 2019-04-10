@@ -2,18 +2,20 @@ package com.example.miagemto;
 
 import android.app.ProgressDialog;
 import android.os.Build;
-import android.support.annotation.RequiresApi;
-import android.support.constraint.ConstraintLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,19 +30,23 @@ import com.example.miagemto.MetroDonnées.HorairesLigne.LigneTram;
 
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class LineStops extends AppCompatActivity {
 
     private ProgressDialog pDialog;
 
-    ListView list_stop;
+    ListView list_stop, list_stop2;
     RequestQueue mQueueQueue;
+    private String id;
     LigneTram ligneTram;
+    private List<String> favoritesStops = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_line_stops);
         setContentView(R.layout.activity_line_stops);
 
         pDialog = new ProgressDialog(this);
@@ -48,17 +54,25 @@ public class LineStops extends AppCompatActivity {
         pDialog.setCancelable(false);
         mQueueQueue = Volley.newRequestQueue(this);
 
-        String id = getIntent().getStringExtra(ScheduleFragment.EXTRA_ID);
+        id = getIntent().getStringExtra(ScheduleFragment.EXTRA_ID);
 
         getLinesSchedule(id);
-        /*PopupWindow popup_line_list = new PopupWindow(this);
-        popup_line_list.showAtLocation((View) getResources().getLayout(R.layout.line_stops_horaires), Gravity.CENTER, 240, 240);*/
+
     }
 
     private void configureListView(){
+
+        TextView directionTitle0 = findViewById(R.id.title_direction);
+        directionTitle0.setText(id + " Direction " + ligneTram.getDirection1().getArrets().get(0).getStopName());
+        TextView directionTitle1 = findViewById(R.id.title_direction2);
+        directionTitle1.setText(id + " Direction " + ligneTram.getDirection0().getArrets().get(0).getStopName());
+
         list_stop = findViewById(R.id.stop_list);
-        ListStopsAdapter linesAdapter = new ListStopsAdapter();
-        list_stop.setAdapter(linesAdapter);
+        list_stop2 = findViewById(R.id.stop_list2);
+        ListStopsAdapter linesAdapter0 = new ListStopsAdapter(ligneTram.getDirection0().getArrets());
+        ListStopsAdapter linesAdapter1 = new ListStopsAdapter(ligneTram.getDirection1().getArrets());
+        list_stop.setAdapter(linesAdapter0);
+        list_stop2.setAdapter(linesAdapter1);
     }
 
     public void getLinesSchedule(String name){
@@ -90,9 +104,14 @@ public class LineStops extends AppCompatActivity {
 
     class ListStopsAdapter extends BaseAdapter {
 
+        List<Arret> stops = new ArrayList<>();
+
+        public ListStopsAdapter(List<Arret> stops){
+            this.stops = stops;
+        }
         @Override
         public int getCount() {
-            return ligneTram.getDirection0().getArrets().size();
+            return stops.size();
         }
 
         @Override
@@ -109,51 +128,65 @@ public class LineStops extends AppCompatActivity {
         public View getView(int position, View convertView, ViewGroup parent) {
             convertView = getLayoutInflater().inflate(R.layout.line_stop_item, null);
             TextView scheduleItem = convertView.findViewById(R.id.name_stop);
-            final Arret current = ligneTram.getDirection0().getArrets().get(position);
+            final Arret current = stops.get(position);
             scheduleItem.setText(current.getStopName());
-            List<String> trips = current.getTrip();
-            final StringBuffer tripConverted = new StringBuffer("Prochains Passages: \n");
-            for (int i=0; i< trips.size(); i++){
-                try{
-                    int seconds = Integer.parseInt(trips.get(i));
-                    tripConverted.append(seconds/(60*60) +"H " +
-                            (seconds%(60*60))/60 + "Mins\n");
-                }catch (Exception e){
-
-                }
-            }
 
             convertView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
                     View detailView = inflater.inflate(R.layout.line_stops_horaires, null);
-                    final PopupWindow nextTrip = new PopupWindow(
+                    final PopupWindow popupNextTrip = new PopupWindow(
                             detailView,
                             ViewGroup.LayoutParams.WRAP_CONTENT,
                             ViewGroup.LayoutParams.WRAP_CONTENT
                     );
 
-                    Button addFavorite, close, refresh;
-                    addFavorite = detailView.findViewById(R.id.add_favoris);
+                    final FloatingActionButton addFavorite = detailView.findViewById(R.id.add_favoris);
+                    addFavorite.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if(favoritesStops.contains(current.getStopName())){
+                                favoritesStops.remove(current.getStopName());
+                                addFavorite.setImageDrawable(getResources().getDrawable(R.drawable.ic_favorite_border_24dp));
+                            }else{
+                                favoritesStops.add(current.getStopName());
+                                addFavorite.setImageDrawable(getResources().getDrawable(R.drawable.ic_favorite_24dp));
+                            }
+                        }
+                    });
+
+                    Button close, refresh;
                     close = detailView.findViewById(R.id.button_popup_close);
                     close.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            nextTrip.dismiss();
+                            popupNextTrip.dismiss();
                         }
                     });
-                    refresh = detailView.findViewById(R.id.button_popup_refresh);
 
-                    TextView popupText = detailView.findViewById(R.id.stop_detail);
-                    popupText.setText(tripConverted);
+                    final TextView popupText = detailView.findViewById(R.id.stop_detail);
+                    popupText.setText(getTripConverted(current.getTrip(), current.getStopName()));
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                        nextTrip.setElevation(5.0f);
+                        popupNextTrip.setElevation(5.0f);
                     }
 
-                    ConstraintLayout my_rootLayout = findViewById(R.id.line_stop_view_root);
-                    nextTrip.showAtLocation(my_rootLayout, Gravity.CENTER, 0, 0);
+                    RelativeLayout my_rootLayout = findViewById(R.id.line_stop_view_root);
+                    popupNextTrip.setOutsideTouchable(true);
+                    popupNextTrip.showAtLocation(my_rootLayout, Gravity.CENTER, 0, 0);
+                    if(favoritesStops.contains(current.getStopName())){
+                        addFavorite.setImageDrawable(getResources().getDrawable(R.drawable.ic_favorite_24dp));
+                    }
+
+                    refresh = detailView.findViewById(R.id.button_popup_refresh);
+                    refresh.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            getLinesSchedule(id);
+                            popupText.setText(getTripConverted(current.getTrip(), current.getStopName()));
+                        }
+                    });
 
                 }
             });
@@ -162,12 +195,29 @@ public class LineStops extends AppCompatActivity {
         }
     }
 
+    private String getTripConverted(List<String> trips, String stopName){
+        final StringBuffer tripConverted = new StringBuffer( stopName + ":\n");
+        for (int i=0; i< trips.size(); i++){
+            try{
+                int seconds = Integer.parseInt(trips.get(i));
+                tripConverted.append(((seconds / 3600)+2)%24 +"H " +
+                        ((seconds %3600) / 60 + "mins\n"));
+            }catch (Exception e){
+
+            }
+        }
+        return tripConverted.toString();
+    }
+
     private void showpDialog() {
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
         if (!pDialog.isShowing())
             pDialog.show();
     }
 
     private void hidepDialog() {
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
         if (pDialog.isShowing())
             pDialog.dismiss();
     }
