@@ -57,7 +57,6 @@ public class LoginActivity extends AppCompatActivity{
             password_form.setError(sErrorLogin);
             return;
         }*/
-        String test = login_form.getText().toString();
         Intent mainIntent = new Intent(this, MainActivity.class);
         mainIntent.putExtra(USER_NAME,login_form.getText().toString() );
         startActivity(mainIntent);

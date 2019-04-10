@@ -239,6 +239,7 @@ public class HomePageFragment extends Fragment implements LocationListener {
                                         getResources().getDrawable(R.drawable.ic_place_24dp),
                                         true);
                             }
+                            hidepDialog();
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -258,7 +259,6 @@ public class HomePageFragment extends Fragment implements LocationListener {
         });
 
         MetroController.getInstance().addToRequestQueue(request, getContext());
-        hidepDialog();
     }
 
 
